@@ -719,7 +719,7 @@ of the same type.
 While it was significantly faster than the other algorithms, it did not
 demonstrate the best speedup.
 
-##### Computation
+##### Merge Sort Computation
 
 Especially at the largest input sizes, Merge Sort's computation region observed
 consistent drops in per-process computation time as more processes were added.
@@ -740,7 +740,7 @@ them from memory on future iterations.
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
 
-##### Communication
+##### Merge Sort Communication
 
 Because this implementation does not centralize the array into a single master
 process, it can keep communication concurrent throughout the entire run. While
@@ -757,7 +757,7 @@ Random input type did not take more time than the other input types.
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
 
-##### Weak Scaling
+##### Merge Sort Weak Scaling
 
 Merge Sort is moderately successful at weak scaling. Each quadrupling of the
 array elements (and correspondingly of processes) results in significantly less
