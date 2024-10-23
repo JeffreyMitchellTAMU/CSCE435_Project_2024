@@ -661,6 +661,10 @@ This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
 #### Sample Sort Parameters
 
+The Sample Sort implementation is compatible with all of the `input_size`, `input_type`, and `num_procs` values, as well as `num_procs=1`. There is an additional parameter, `sample_size`, that is held constant at 1 throughout all of the runs. However, there are only 27 Caliper files available, as other runs with inputs larger than 1048576 timed out with a 2 hour time limit. Additionally, Grace was overrun with jobs and so not all lower number jobs with more than 2 processes were able to run. The timeouts likely occurred due to the non-parallel quicksort that was running on each individual process to sort their specific buckets, as this was selecting inferior pivots.
+
+Sample Sort's Caliper files are located in `sample_ipynb/Sample_Cali/` .
+
 #### Merge Sort Parameters
 
 The Merge Sort implementation is compatible with all of the specified
@@ -809,6 +813,34 @@ Overall, however, these trends indicate ineffective weak scaling for Radix sort,
 
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
+
+
+
+
+#### Sample Sort Performance Evaluation:
+##### Sample Computation Performance
+
+When compared with other inputs, the Sorted input appeared to take longer than the other inputs, especially when run on 2 processes with an input size of 1048576, in which case it was the only one that timed out. This is possible due to the implementation of the local quicksort, which does not check if the array is sorted or not. In the case that the inputs are sorted, the implementation of sample sort works the same way. 
+
+Note that the Sorted input took longer for 2 processes, but this was not true for all numbers of processes. The implementation of local quicksort chooses the last index as the pivot index. If the worst index is selected (which will occur for Sorted and Reverse Sorted arrays), this will increase the time complexity to O(n^2). This could also be a problem in the 1 Percent Perturbed inputs. 
+
+Sample Sort has a significant portion of its runtime in large computation -- when the local processes sort their respective parameters. Given that they are choosing poor indexes as pivots (leading to unbalanced subarrays to be sorted), it makes sense that Sample Sort would take long amounts of time, of the order of at least O(n^2). 
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+##### Sample Communication Performance
+For communication, the sample sort input types seemed to have similar communication costs. This makes sense, as due to the implementation all processes will send the same amount of data to all other processes, regardless of the need (the rest of the array is filled with -1s). 
+
+Note that the 1 Percent Perturbed took longer than the other processes for communication with 2 processes. As MPI_Send and MPI_Receive were used, processes had to wait to receive before they could continue. Therefore, it is possible that some processes took longer than others to sort, and thus the others had to wait on them. However, the difference is less than 0.05 seconds, so this is likely due to the specific input generated for that case.
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comm,%20n=65536).png)
+
+##### Sample Weak Scaling Observations:
+Unfortunately, due to the current implementation of quicksort, multiple sample sort data points were not able to be obtained for weak scaling (as the input size was too big and timed out (recall that it is currently O(n^2) worst case complexity for quicksort). However, with a better implementation of quicksort or longer runtimes before timing out (currently set to 2 hours), there will likely be further observations. 
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comm).png)
 
 
 ## 5. Presentation
