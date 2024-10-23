@@ -704,8 +704,83 @@ The group has two scripts to automate job setup and runs:
     - Avg time/rank
     - Total time
     - Variance time/rank
+
 All of these metrics were measured and recorded by Caliper. They are available
 in each run's respective `.cali` file.
+
+#### Merge Sort Performance Evaluation
+
+Merge Sort proved to be a low outlier, with its slowest run performing an order
+of magnitude faster than the next fastest algorithm's. Plotted on the same scale
+as the other graphs, its timing data points would be flattened along the bottom
+of the graphs and difficult to distinguish. Therefore, the graph scales are not
+synchronized with the other algorithms', only with the other merge sort graphs
+of the same type.
+
+While it was significantly faster than the other algorithms, it did not
+demonstrate the best speedup.
+
+##### Merge Sort Computation
+
+Especially at the largest input sizes, Merge Sort's computation region observed
+consistent drops in per-process computation time as more processes were added.
+This does, however, drop off at greater scales, as the compound merges (which
+are a distributed process and do not result in a single master process storing
+the entire array) require nodes to exchange data with more neighbors and perform
+more full-size local merges.
+
+In each merge, merge sort treats the two sorted subarrays identically, taking
+elements from one or the other. If memory is accessed at a consistent speed,
+this would result in the same time for each input type. However, in reality,
+the Random merge sorts tended to take longer. This is likely due to an increase
+in L1 cache misses. As merge sort alternates between instructions to take
+elements from the different source arrays, there's a greater likelihood that
+the other instructions get pushed out of the cache, forcing the CPU to reload
+them from memory on future iterations.
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
+
+##### Merge Sort Communication
+
+Because this implementation does not centralize the array into a single master
+process, it can keep communication concurrent throughout the entire run. While
+communication time does increase each time the number of processors is doubled,
+it maintains a very shallow slope.
+
+Communication performance was not affected by the input type. This particular
+implementation of merge sort accounts for this because it does not use any
+extra knowledge of the array to dynamically determine how much data to send.
+Each multi-process merge involves both processes sending each other the same
+amount of information every time. This is particularly noticable in that the
+Random input type did not take more time than the other input types.
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
+
+##### Merge Sort Weak Scaling
+
+Merge Sort is moderately successful at weak scaling. Each quadrupling of the
+array elements (and correspondingly of processes) results in significantly less
+than a quadrupling of the time required to sort. Even in the worst step,
+the main function only doubles the time it takes. While this does allow
+sorting larger arrays by assigning more processors, the feasible array size is
+not fully proportional to the number of processors.
+
+Communication was a greater bottleneck than computation. This makes sense, as
+each successive composite merge requires that each node communicate with more
+of its neighbors. This grows to involve more and more between-node
+communication, which is much slower than communication within the same node.
+
+While this implementation of merge sort has imperfect weak scaling in timing,
+it is less constrained than other implementations in terms of memory. Because
+the array never gets centralized, each process's memory consumption is
+proportional to `n/p` (disregarding the constant overhead for MPI and the
+program instructions), allowing larger problems to be completable.
+
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comp_large).png)
 
 #### Radix Sort Performance Evaluation:
 ##### Radix Computation Performance
