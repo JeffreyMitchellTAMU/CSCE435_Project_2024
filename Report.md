@@ -704,6 +704,7 @@ The group has two scripts to automate job setup and runs:
     - Avg time/rank
     - Total time
     - Variance time/rank
+
 All of these metrics were measured and recorded by Caliper. They are available
 in each run's respective `.cali` file.
 
