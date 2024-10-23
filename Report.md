@@ -665,6 +665,10 @@ Bitonic Sort's Caliper files are located in `bitonic_ipynb/Bitonic_Cali/`.
 
 #### Sample Sort Parameters
 
+The Sample Sort implementation is compatible with all of the `input_size`, `input_type`, and `num_procs` values, as well as `num_procs=1`. There is an additional parameter, `sample_size`, that is held constant at 1 throughout all of the runs. However, there are only 27 Caliper files available, as other runs with inputs larger than 1048576 timed out with a 2 hour time limit. Additionally, Grace was overrun with jobs and so not all lower number jobs with more than 2 processes were able to run. The timeouts likely occurred due to the non-parallel quicksort that was running on each individual process to sort their specific buckets, as this was selecting inferior pivots.
+
+Sample Sort's Caliper files are located in `sample_ipynb/Sample_Cali/` .
+
 #### Merge Sort Parameters
 
 The Merge Sort implementation is compatible with all of the specified
@@ -708,6 +712,7 @@ The group has two scripts to automate job setup and runs:
     - Avg time/rank
     - Total time
     - Variance time/rank
+
 All of these metrics were measured and recorded by Caliper. They are available
 in each run's respective `.cali` file.
 
@@ -757,6 +762,105 @@ The weak scaling graphs can be seen below
 ![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comm).png)
 ![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comp_large).png)
 ![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(main).png)
+
+#### Sample Sort Performance Evaluation:
+##### Sample Computation Performance
+
+When compared with other inputs, the Sorted input appeared to take longer than the other inputs, especially when run on 2 processes with an input size of 1048576, in which case it was the only one that timed out. This is possible due to the implementation of the local quicksort, which does not check if the array is sorted or not. In the case that the inputs are sorted, the implementation of sample sort works the same way. 
+
+Note that the Sorted input took longer for 2 processes, but this was not true for all numbers of processes. The implementation of local quicksort chooses the last index as the pivot index. If the worst index is selected (which will occur for Sorted and Reverse Sorted arrays), this will increase the time complexity to O(n^2). This could also be a problem in the 1 Percent Perturbed inputs. 
+
+Sample Sort has a significant portion of its runtime in large computation -- when the local processes sort their respective parameters. Given that they are choosing poor indexes as pivots (leading to unbalanced subarrays to be sorted), it makes sense that Sample Sort would take long amounts of time, of the order of at least O(n^2). 
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+##### Sample Communication Performance
+For communication, the sample sort input types seemed to have similar communication costs. This makes sense, as due to the implementation all processes will send the same amount of data to all other processes, regardless of the need (the rest of the array is filled with -1s). 
+
+Note that the 1 Percent Perturbed took longer than the other processes for communication with 2 processes. As MPI_Send and MPI_Receive were used, processes had to wait to receive before they could continue. Therefore, it is possible that some processes took longer than others to sort, and thus the others had to wait on them. However, the difference is less than 0.05 seconds, so this is likely due to the specific input generated for that case.
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comm,%20n=65536).png)
+
+##### Sample Weak Scaling Observations:
+Unfortunately, due to the current implementation of quicksort, multiple sample sort data points were not able to be obtained for weak scaling (as the input size was too big and timed out (recall that it is currently O(n^2) worst case complexity for quicksort). However, with a better implementation of quicksort or longer runtimes before timing out (currently set to 2 hours), there will likely be further observations. 
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comm).png)
+
+#### Merge Sort Performance Evaluation
+
+Merge Sort proved to be a low outlier, with its slowest run performing an order
+of magnitude faster than the next fastest algorithm's. Plotted on the same scale
+as the other graphs, its timing data points would be flattened along the bottom
+of the graphs and difficult to distinguish. Therefore, the graph scales are not
+synchronized with the other algorithms', only with the other merge sort graphs
+of the same type.
+
+While it was significantly faster than the other algorithms, it did not
+demonstrate the best speedup.
+
+##### Merge Sort Computation
+
+Especially at the largest input sizes, Merge Sort's computation region observed
+consistent drops in per-process computation time as more processes were added.
+This does, however, drop off at greater scales, as the compound merges (which
+are a distributed process and do not result in a single master process storing
+the entire array) require nodes to exchange data with more neighbors and perform
+more full-size local merges.
+
+In each merge, merge sort treats the two sorted subarrays identically, taking
+elements from one or the other. If memory is accessed at a consistent speed,
+this would result in the same time for each input type. However, in reality,
+the Random merge sorts tended to take longer. This is likely due to an increase
+in L1 cache misses. As merge sort alternates between instructions to take
+elements from the different source arrays, there's a greater likelihood that
+the other instructions get pushed out of the cache, forcing the CPU to reload
+them from memory on future iterations.
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
+
+##### Merge Sort Communication
+
+Because this implementation does not centralize the array into a single master
+process, it can keep communication concurrent throughout the entire run. While
+communication time does increase each time the number of processors is doubled,
+it maintains a very shallow slope.
+
+Communication performance was not affected by the input type. This particular
+implementation of merge sort accounts for this because it does not use any
+extra knowledge of the array to dynamically determine how much data to send.
+Each multi-process merge involves both processes sending each other the same
+amount of information every time. This is particularly noticable in that the
+Random input type did not take more time than the other input types.
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
+
+##### Merge Sort Weak Scaling
+
+Merge Sort is moderately successful at weak scaling. Each quadrupling of the
+array elements (and correspondingly of processes) results in significantly less
+than a quadrupling of the time required to sort. Even in the worst step,
+the main function only doubles the time it takes. While this does allow
+sorting larger arrays by assigning more processors, the feasible array size is
+not fully proportional to the number of processors.
+
+Communication was a greater bottleneck than computation. This makes sense, as
+each successive composite merge requires that each node communicate with more
+of its neighbors. This grows to involve more and more between-node
+communication, which is much slower than communication within the same node.
+
+While this implementation of merge sort has imperfect weak scaling in timing,
+it is less constrained than other implementations in terms of memory. Because
+the array never gets centralized, each process's memory consumption is
+proportional to `n/p` (disregarding the constant overhead for MPI and the
+program instructions), allowing larger problems to be completable.
+
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comp_large).png)
 
 #### Radix Sort Performance Evaluation:
 ##### Radix Computation Performance
