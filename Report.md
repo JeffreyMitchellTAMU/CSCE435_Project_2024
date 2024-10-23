@@ -659,6 +659,10 @@ This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
 #### Bitonic Sort Parameters
 
+The Bitonic Sort implementation is compatible with the varying parameters specified above, with one caveat. Currently, Grace encounters a networking error when ever `num_procs` is set to 1024. Because of this, the data for 1024 processors is currently unavailable until this issue is resolved.
+
+Bitonic Sort's Caliper files are located in `bitonic_ipynb/Bitonic_Cali/`.
+
 #### Sample Sort Parameters
 
 The Sample Sort implementation is compatible with all of the `input_size`, `input_type`, and `num_procs` values, as well as `num_procs=1`. There is an additional parameter, `sample_size`, that is held constant at 1 throughout all of the runs. However, there are only 27 Caliper files available, as other runs with inputs larger than 1048576 timed out with a 2 hour time limit. Additionally, Grace was overrun with jobs and so not all lower number jobs with more than 2 processes were able to run. The timeouts likely occurred due to the non-parallel quicksort that was running on each individual process to sort their specific buckets, as this was selecting inferior pivots.
@@ -711,6 +715,78 @@ The group has two scripts to automate job setup and runs:
 
 All of these metrics were measured and recorded by Caliper. They are available
 in each run's respective `.cali` file.
+
+#### Bitonic Sort Performance Evaluation General Notes:
+As directed in class, attempts were made to compare algorithms on the same scale (e.g. graphs have the same minY and maxY). However due to the wide variance of times in different algorithms, some scales have been altered to better illustrate the data. Additionally, as mentioned above, data from 1024 processor runs is not yet available due to Grace issues. Finally, in a small number of low processor jobs (~2), a system timeout stopped completion of the jobs. As directed in class, system resources were not expended to rerun these, and they are accounted for in analysis.
+
+#### Bitonic Computation Performance
+For computation times, this implementation of bitonic sort appears to be relatively agnostic to the initial conditions of the data that is to be sorted. It might be argued that Random and 1_perc_perturbed initial conditions appear to have somewhat higher computation times at lower processor counts, but this observation is neither consistent nor significant enough to draw any conclusions off of.
+
+As expected, computation time tends to a decaying exponential pattern as more processors are introduced to the algorithm. There are of course some outliers in computation times, especially at low processor counts.  Some of these can be attributed to job timeouts which, in the interest of saving system resources, were not replicated as instructed in lecture. Despite these outliers, the general trend is quite clear that increasing processor count reduces computation time, with diminishing returns.
+
+A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=262144).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
+
+#### Bitonic Communicaion Performance
+In comparison to computation time, communication time is almost negligible in this implementation of bitonic sort. Communication time for this algorithm is, generally, several orders of magnitudes smaller than computation time. With the exception of a few major outliers, communication times for this algorithm are generally on the order of 1 - 2 seconds or less. Some of these outliers, however, shoot up to over 100 seconds stuck in communication. Like with the computation performance, this can likely be attributed to the few cases where a timeout stopped the completion of the sorting job.
+
+This algorithm appears to also be agnostic to the initial sort type of the data regarding communication time.  There is little to no correlation in the initial conditions of an array and its communication time.
+
+Finally, except for outliers, there also appears to be very little correlation between process communication time and process count in this implementation of bitonic sort. The graphs below demonstrate this trend.
+
+A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=262144).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=4194304).png)
+
+#### Bitonic Strong Scaling Observations:
+Strong scaling speedup trends are observed as well. The strong scaling speedup for comm measurements can be misleading, as the small deviation in general can make the graphs appear to suggest massive speedups.
+
+The more useful speedups can be seen in the measurement of comp speedup.  These graphs display a positive, linear relationship between process count and speedup.  This trend holds for all initial conditions (Sorted, ReverseSorted, etc.).
+
+A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large%2C%20Sorted).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large%2C%20ReverseSorted).png)
+
+
+#### Bitonic Weak Scaling Observations:
+The weak scaling analysis also provides interesting insights.
+
+As above, the generally negligible comm times somewhat obscure the picture of comm's weak scaling, however a generally exponential trend is still noticable.
+
+The weak scaling of comp for bitonic sort shows that the algorithm does get less efficient for the same amount of work per processor as process count increases.
+
+Since it is dominated by comp, main generally follows the trend of comp.
+
+The weak scaling graphs can be seen below
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(main).png)
+
+#### Sample Sort Performance Evaluation:
+##### Sample Computation Performance
+
+When compared with other inputs, the Sorted input appeared to take longer than the other inputs, especially when run on 2 processes with an input size of 1048576, in which case it was the only one that timed out. This is possible due to the implementation of the local quicksort, which does not check if the array is sorted or not. In the case that the inputs are sorted, the implementation of sample sort works the same way. 
+
+Note that the Sorted input took longer for 2 processes, but this was not true for all numbers of processes. The implementation of local quicksort chooses the last index as the pivot index. If the worst index is selected (which will occur for Sorted and Reverse Sorted arrays), this will increase the time complexity to O(n^2). This could also be a problem in the 1 Percent Perturbed inputs. 
+
+Sample Sort has a significant portion of its runtime in large computation -- when the local processes sort their respective parameters. Given that they are choosing poor indexes as pivots (leading to unbalanced subarrays to be sorted), it makes sense that Sample Sort would take long amounts of time, of the order of at least O(n^2). 
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+##### Sample Communication Performance
+For communication, the sample sort input types seemed to have similar communication costs. This makes sense, as due to the implementation all processes will send the same amount of data to all other processes, regardless of the need (the rest of the array is filled with -1s). 
+
+Note that the 1 Percent Perturbed took longer than the other processes for communication with 2 processes. As MPI_Send and MPI_Receive were used, processes had to wait to receive before they could continue. Therefore, it is possible that some processes took longer than others to sort, and thus the others had to wait on them. However, the difference is less than 0.05 seconds, so this is likely due to the specific input generated for that case.
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comm,%20n=65536).png)
+
+##### Sample Weak Scaling Observations:
+Unfortunately, due to the current implementation of quicksort, multiple sample sort data points were not able to be obtained for weak scaling (as the input size was too big and timed out (recall that it is currently O(n^2) worst case complexity for quicksort). However, with a better implementation of quicksort or longer runtimes before timing out (currently set to 2 hours), there will likely be further observations. 
+
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comm).png)
 
 #### Merge Sort Performance Evaluation
 
@@ -813,35 +889,6 @@ Overall, however, these trends indicate ineffective weak scaling for Radix sort,
 
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
-
-
-
-
-#### Sample Sort Performance Evaluation:
-##### Sample Computation Performance
-
-When compared with other inputs, the Sorted input appeared to take longer than the other inputs, especially when run on 2 processes with an input size of 1048576, in which case it was the only one that timed out. This is possible due to the implementation of the local quicksort, which does not check if the array is sorted or not. In the case that the inputs are sorted, the implementation of sample sort works the same way. 
-
-Note that the Sorted input took longer for 2 processes, but this was not true for all numbers of processes. The implementation of local quicksort chooses the last index as the pivot index. If the worst index is selected (which will occur for Sorted and Reverse Sorted arrays), this will increase the time complexity to O(n^2). This could also be a problem in the 1 Percent Perturbed inputs. 
-
-Sample Sort has a significant portion of its runtime in large computation -- when the local processes sort their respective parameters. Given that they are choosing poor indexes as pivots (leading to unbalanced subarrays to be sorted), it makes sense that Sample Sort would take long amounts of time, of the order of at least O(n^2). 
-
-![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
-
-##### Sample Communication Performance
-For communication, the sample sort input types seemed to have similar communication costs. This makes sense, as due to the implementation all processes will send the same amount of data to all other processes, regardless of the need (the rest of the array is filled with -1s). 
-
-Note that the 1 Percent Perturbed took longer than the other processes for communication with 2 processes. As MPI_Send and MPI_Receive were used, processes had to wait to receive before they could continue. Therefore, it is possible that some processes took longer than others to sort, and thus the others had to wait on them. However, the difference is less than 0.05 seconds, so this is likely due to the specific input generated for that case.
-
-![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comm,%20n=65536).png)
-
-##### Sample Weak Scaling Observations:
-Unfortunately, due to the current implementation of quicksort, multiple sample sort data points were not able to be obtained for weak scaling (as the input size was too big and timed out (recall that it is currently O(n^2) worst case complexity for quicksort). However, with a better implementation of quicksort or longer runtimes before timing out (currently set to 2 hours), there will likely be further observations. 
-
-![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(main).png)
-![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comp_large).png)
-![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comm).png)
-
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
