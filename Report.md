@@ -695,13 +695,17 @@ With regards to communication, the reverse sorted input type consistently appear
 
 
 What is also interesting to note is how time communicating on each process decreased as process size increased. Because this implementation of radix sort used caliper to count the amount of time a process spent communicating, for larger array inputs, individual processes spent less time in the communication section. As shown in the below figure, time spent individually for each process decreased. This aligns with our understanding of partitioning jobs across processes. When we increase process size, the subproblem size on each process decreases. Since each process individually communicates with other processes by sending the array item and the global index to the according process, individual time spent communicating decreases as outbound communication and inbound communication becomes bound by the partition size of the array.
-![alt text](Radix_Plots/Radix%20comm_16777216.png)
+![alt text](Radix_Plots/Radix%20comm_16777216.png) 
 
 #### Radix Weak Scaling Observations:
-With regards to weak scaling, the plots for comm, main, and comp_large appeared relatively linear, such that the algorithm appears to maintain and increase parallel efficiency as the problem scales. What was notable was that with regards to scaling, Random input appeared to always act as an upper bound for time. Overall, sections for main, comp_large, and comm appeared relatively similar with regards to trends. However, the graphs are not perfectly linear, and appear to be similar to exponential growth. Overall, however, these trends indicate effective effective weak scaling for Radix sort. 
+With regards to weak scaling, the plots for comm, main, and comp_large appeared relatively exponential in growth, such that the algorithm appears to not maintain and not increase parallel efficiency as the problem scales.
+
+What was notable was that with regards to scaling, Random input appeared to always act as an upper bound for time. Overall, sections for main, comp_large, and comm appeared relatively similar with regards to trends.
+
+Overall, however, these trends indicate ineffective weak scaling for Radix sort, as the runtime appeared to double as problem and processor count increased by a factor of 4. While adding additional processes does allow for the same problem size to decrease in time, with regards to larger problems, additional processes do not allow for solving of larger problems in a similar amount of time.
+
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
-![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comm).png)
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
