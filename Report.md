@@ -657,6 +657,31 @@ MPI: num_procs:
 
 This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
+#### Bitonic Sort Parameters
+
+#### Sample Sort Parameters
+
+#### Merge Sort Parameters
+
+The Merge Sort implementation is compatible with all of the specified
+`input_size`, `input_type`, and `num_procs` values (plus `num_procs=1`).
+However, as of October 20, Grace began throwing Bootstrap errors within
+`MPI_Init()` whenever `num_procs` was set to 1024. As a result, Merge Sort is
+lacking 18 Caliper files with 1024 processes. Its graphs plot the available
+1024-processor data whenever it is available.
+
+Merge Sort's 4x7x11-18=290 Caliper files are located in
+`merge_ipynb/Merge_Cali/`.
+
+#### Radix Sort Parameters
+The Radix sort implementation is compatible with all of the specified
+`input_size`, `input_type`, and `num_procs` values. 
+
+For the sake of this particular implementation of Radix, 240 cali files were collected instead of 280. This due to the fact Radix sort became inefficient for Random input at array size $2^{26}$, which aligns with the implementation for this particular instance of Radix. In particular, this ineffiency was with regards to Random input with process size 2, in which the job took longer than 3 hours to complete. Because Radix works by placing objects into buckets, and sorting by digit, this would incur more communication costs as local sorted arrays are redistributed to other processes with every step and result in substantially increased runtime.
+
+Radix Sort's $4\cdot6\cdot10 = 240$ Caliper files are located in  
+`radix_ipynb/Radix_Cali/`.
+
 ### 4b. Hints for performance analysis
 
 To automate running a set of experiments, parameterize your program.
@@ -667,7 +692,10 @@ To automate running a set of experiments, parameterize your program.
 
 When your program works with these parameters, you can write a shell script 
 that will run a for loop over the parameters above (e.g., on 64 processors, 
-perform runs that invoke algorithm for Sorted, ReverseSorted, and Random data).  
+perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
+  
+The group has two scripts to automate job setup and runs:
+`scripts/parameterized_job.py` and `MPI_Builds/radix_cmake/collect.sh`.
 
 ### 4c. You should measure the following performance metrics
 - `Time`
@@ -676,10 +704,10 @@ perform runs that invoke algorithm for Sorted, ReverseSorted, and Random data).
     - Avg time/rank
     - Total time
     - Variance time/rank
+All of these metrics were measured and recorded by Caliper. They are available
+in each run's respective `.cali` file.
 
 #### Radix Sort Performance Evaluation:
-Preface: For the sake of this particular implementation of Radix, 240 cali files were collected instead of 280. This due to the fact Radix sort became inefficient for Random input at array size $$2^{26}$$, which aligns with the implementation for this particular instance of Radix. In particular, this ineffiency was with regards to Random input with process size 2, in which the job took longer than 3 hours to complete. Because Radix works by placing objects into buckets, and sorting by digit, this would incur more communication costs as local sorted arrays are redistributed to other processes with every step and result in substantially increased runtime.
-
 #### Radix Computation Performance
 With regards to computation, Reverse Sorted input computation appeared to act as an upper bound in comparison to the other sorts, which had similar, if not identical computation times. This aligns with our understanding of Radix Sort and its large computation, which involves the local sort of the partition array allocated to the process. Because Radix Sort computation involves sorting the local arrays using Counting Sort, determining prefix sum, and determining which arrays to send (as well a the global indices), Reverse Sorted requires more computation as more items need to be redistributed to the correct intermediary/final locations.
 
@@ -706,6 +734,7 @@ Overall, however, these trends indicate ineffective weak scaling for Radix sort,
 
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
+
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
