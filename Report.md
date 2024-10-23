@@ -711,6 +711,53 @@ The group has two scripts to automate job setup and runs:
 All of these metrics were measured and recorded by Caliper. They are available
 in each run's respective `.cali` file.
 
+#### Bitonic Sort Performance Evaluation General Notes:
+As directed in class, attempts were made to compare algorithms on the same scale (e.g. graphs have the same minY and maxY). However due to the wide variance of times in different algorithms, some scales have been altered to better illustrate the data. Additionally, as mentioned above, data from 1024 processor runs is not yet available due to Grace issues. Finally, in a small number of low processor jobs (~2), a system timeout stopped completion of the jobs. As directed in class, system resources were not expended to rerun these, and they are accounted for in analysis.
+
+#### Bitonic Computation Performance
+For computation times, this implementation of bitonic sort appears to be relatively agnostic to the initial conditions of the data that is to be sorted. It might be argued that Random and 1_perc_perturbed initial conditions appear to have somewhat higher computation times at lower processor counts, but this observation is neither consistent nor significant enough to draw any conclusions off of.
+
+As expected, computation time tends to a decaying exponential pattern as more processors are introduced to the algorithm. There are of course some outliers in computation times, especially at low processor counts.  Some of these can be attributed to job timeouts which, in the interest of saving system resources, were not replicated as instructed in lecture. Despite these outliers, the general trend is quite clear that increasing processor count reduces computation time, with diminishing returns.
+
+A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=262144).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
+
+#### Bitonic Communicaion Performance
+In comparison to computation time, communication time is almost negligible in this implementation of bitonic sort. Communication time for this algorithm is, generally, several orders of magnitudes smaller than computation time. With the exception of a few major outliers, communication times for this algorithm are generally on the order of 1 - 2 seconds or less. Some of these outliers, however, shoot up to over 100 seconds stuck in communication. Like with the computation performance, this can likely be attributed to the few cases where a timeout stopped the completion of the sorting job.
+
+This algorithm appears to also be agnostic to the initial sort type of the data regarding communication time.  There is little to no correlation in the initial conditions of an array and its communication time.
+
+Finally, except for outliers, there also appears to be very little correlation between process communication time and process count in this implementation of bitonic sort. The graphs below demonstrate this trend.
+
+A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=262144).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=4194304).png)
+
+#### Bitonic Strong Scaling Observations:
+Strong scaling speedup trends are observed as well. The strong scaling speedup for comm measurements can be misleading, as the small deviation in general can make the graphs appear to suggest massive speedups.
+
+The more useful speedups can be seen in the measurement of comp speedup.  These graphs display a positive, linear relationship between process count and speedup.  This trend holds for all initial conditions (Sorted, ReverseSorted, etc.).
+
+A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large%2C%20Sorted).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large%2C%20ReverseSorted).png)
+
+
+#### Bitonic Weak Scaling Observations:
+The weak scaling analysis also provides interesting insights.
+
+As above, the generally negligible comm times somewhat obscure the picture of comm's weak scaling, however a generally exponential trend is still noticable.
+
+The weak scaling of comp for bitonic sort shows that the algorithm does get less efficient for the same amount of work per processor as process count increases.
+
+Since it is dominated by comp, main generally follows the trend of comp.
+
+The weak scaling graphs can be seen below
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(main).png)
+
 #### Radix Sort Performance Evaluation:
 ##### Radix Computation Performance
 With regards to computation, Reverse Sorted input computation appeared to act as an upper bound in comparison to the other sorts, which had similar, if not identical computation times. This aligns with our understanding of Radix Sort and its large computation, which involves the local sort of the partition array allocated to the process. Because Radix Sort computation involves sorting the local arrays using Counting Sort, determining prefix sum, and determining which arrays to send (as well a the global indices), Reverse Sorted requires more computation as more items need to be redistributed to the correct intermediary/final locations.
@@ -738,55 +785,6 @@ Overall, however, these trends indicate ineffective weak scaling for Radix sort,
 
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
 ![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
-
-#### Bitonic Sort Performance Evaluation General Notes:
-As directed in class, attempts were made to compare algorithms on the same scale (e.g. graphs have the same minY and maxY). However due to the wide variance of times in different algorithms, some scales have been altered to better illustrate the data. Additionally, as mentioned above, data from 1024 processor runs is not yet available due to Grace issues. Finally, in a small number of low processor jobs (~2), a system timeout stopped completion of the jobs. As directed in class, system resources were not expended to rerun these, and they are accounted for in analysis.
-
-#### Bitonic Computation Performance
-For computation times, this implementation of bitonic sort appears to be relatively agnostic to the initial conditions of the data that is to be sorted. It might be argued that Random and 1_perc_perturbed initial conditions appear to have somewhat higher computation times at lower processor counts, but this observation is neither consistent nor significant enough to draw any conclusions off of.
-
-As expected, computation time tends to decay with a decaying exponential pattern as more processors are introduced to the algorithm. There are of course some outliers in computation times, especially at low processor counts.  Some of these can be attributed to job timeouts which, in the interest of saving system resources, were not replicated as instructed in lecture. Despite these outliers, the general trend is quite clear that increasing processor count reduces computation time, with diminishing returns.
-
-A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=262144).png)
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
-
-#### Bitonic Communicaion Performance
-In comparison to computation time, communication time is almost negligible in this implementation of bitonic sort. Communication time for this algorithm is, generally, several orders of magnitudes smaller than computation time. With the exception of a few major outliers, communication times for this algorithm are generally on the order of 1 - 2 seconds or less. Some of these outliers, however, shoot up to over 100 seconds stuck in communication. Like with the computation performance, this can likely be attributed to the few cases where a timeout stopped the completion of the sorting job.
-
-This algorithm appears to also be agnostic to the initial sort type of the data regarding communication time.  There is little to no correlation in the initial conditions of an array and its communication time.
-
-Finally, except for outliers, there also appears to be very little correlation between process communication time and process count in this implementation of bitonic sort. The graphs below demonstrate this trend.
-
-A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=262144).png)
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=4194304).png)
-
-
-
-#### Bitonic Strong Scaling Observations:
-Strong scaling speedup trends are observed as well. The strong scaling speedup for comm measurements can be misleading, as the small deviation in general can make the graphs appear to suggest massive speedups.
-
-The more useful speedups can be seen in the measurement of comp speedup.  These graphs display a positive, linear relationship between process count and speedup.  This trend holds for all initial conditions (Sorted, ReverseSorted, etc.).
-
-A few sample graphs to demonstrate these trends can be seen below, with the rest accessible at `bitonic_ipynb/Bitonic_Plots/`
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large%2C%20Sorted).png)
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large%2C%20ReverseSorted).png)
-
-
-#### Bitonic Weak Scaling Observations:
-The weak scaling analysis also provides interesting insights.
-
-As above, the generally negligible comm times somewhat obscure the picture of comm's weak scaling, however a generally exponential trend is still noticable.
-
-The weak scaling of comp for bitonic sort shows that the algorithm does get less efficient for the same amount of work per processor as process count increases.
-
-Since it is dominated by comp, main generally follows the trend of comp.
-
-The weak scaling graphs can be seen below
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comm).png)
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comp_large).png)
-![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(main).png)
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
