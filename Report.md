@@ -680,20 +680,28 @@ perform runs that invoke algorithm for Sorted, ReverseSorted, and Random data).
 #### Radix Sort Performance Evaluation:
 Preface: For the sake of this particular implementation of Radix, 240 cali files were collected instead of 280. This due to the fact Radix sort became inefficient for Random input at array size $$2^{26}$$, which aligns with the implementation for this particular instance of Radix. In particular, this ineffiency was with regards to Random input with process size 2, in which the job took longer than 3 hours to complete. Because Radix works by placing objects into buckets, and sorting by digit, this would incur more communication costs as local sorted arrays are redistributed to other processes with every step and result in substantially increased runtime.
 
-#### Radix Overall Performance (Main Strong Scaling) 
-
 #### Radix Computation Performance
-With regards to computation
+With regards to computation, Reverse Sorted input computation appeared to act as an upper bound in comparison to the other sorts, which had similar, if not identical computation times. This aligns with our understanding of Radix Sort and its large computation, which involves the local sort of the partition array allocated to the process. Because Radix Sort computation involves sorting the local arrays using Counting Sort, determining prefix sum, and determining which arrays to send (as well a the global indices), Reverse Sorted requires more computation as more items need to be redistributed to the correct intermediary/final locations.
+
+We see downward growing trends as well for computation time per individual process, which aligns with our understanding of problem partitioning among processes. As we increase number of processes, each process works with a smaller subproblem size such that individual computation decreases due to the local sort step having less to sort on a process. This trend is consistent with other problem sizes as well.
+
+![alt text](Radix_Plots/Radix%20comp_large_262144.png)
+![alt text](Radix_Plots/Radix%20comp_large_67108864.png)
+
 #### Radix Communicaion Performance
 With regards to communication, the reverse sorted input type consistently appeared to incur larger communication costs compared to the other three processes. This aligns with our understanding of the Radix sort implementation used for this project, as following local sort, the index location of a particular array item would be determined through counting the global prefix sum. Because Radix sort sorts from least significant to most significant digit using buckets, this would result in ReverseSorted input types incurring more communication costs during the distribution phase of radix sort, which distributed array items based on their digit index being used.
 ![alt text](Radix_Plots/Radix%20comm_67108864.png)
+![alt text](Radix_Plots/Radix%20comm_262144.png)
+
 
 What is also interesting to note is how time communicating on each process decreased as process size increased. Because this implementation of radix sort used caliper to count the amount of time a process spent communicating, for larger array inputs, individual processes spent less time in the communication section. As shown in the below figure, time spent individually for each process decreased. This aligns with our understanding of partitioning jobs across processes. When we increase process size, the subproblem size on each process decreases. Since each process individually communicates with other processes by sending the array item and the global index to the according process, individual time spent communicating decreases as outbound communication and inbound communication becomes bound by the partition size of the array.
 ![alt text](Radix_Plots/Radix%20comm_16777216.png)
 
 #### Radix Weak Scaling Observations:
-With regards to weak scaling, 
-![alt text](Radix_Plots/Radix%20comm_16777216.png)
+With regards to weak scaling, the plots for comm, main, and comp_large appeared relatively linear, such that the algorithm appears to maintain and increase parallel efficiency as the problem scales. What was notable was that with regards to scaling, Random input appeared to always act as an upper bound for time. Overall, sections for main, comp_large, and comm appeared relatively similar with regards to trends. However, the graphs are not perfectly linear, and appear to be similar to exponential growth. Overall, however, these trends indicate effective effective weak scaling for Radix sort. 
+![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comm).png)
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
