@@ -657,6 +657,24 @@ MPI: num_procs:
 
 This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
+#### Bitonic Sort Parameters
+
+#### Sample Sort Parameters
+
+#### Merge Sort Parameters
+
+The Merge Sort implementation is compatible with all of the specified
+`input_size`, `input_type`, and `num_procs` values (plus `num_procs=1`).
+However, as of October 20, Grace began throwing Bootstrap errors within
+`MPI_Init()` whenever `num_procs` was set to 1024. As a result, Merge Sort is
+lacking 18 Caliper files with 1024 processes. Its graphs plot the available
+1024-processor data whenever it is available.
+
+Merge Sort's 4x7x11-18=290 Caliper files are located in
+`merge_ipynb/Merge_Cali/`.
+
+#### Radix Sort Parameters
+
 ### 4b. Hints for performance analysis
 
 To automate running a set of experiments, parameterize your program.
@@ -667,7 +685,11 @@ To automate running a set of experiments, parameterize your program.
 
 When your program works with these parameters, you can write a shell script 
 that will run a for loop over the parameters above (e.g., on 64 processors, 
-perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).  
+perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
+  
+  
+The group has two scripts to automate job setup and runs:
+`scripts/parameterized_job.py` and `MPI_Builds/radix_cmake/collect.sh`.
 
 ### 4c. You should measure the following performance metrics
 - `Time`
@@ -676,6 +698,9 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
     - Avg time/rank
     - Total time
     - Variance time/rank
+
+All of these metrics were measured and recorded by Caliper. They are available
+in each run's respective `.cali` file.
 
 
 ## 5. Presentation
