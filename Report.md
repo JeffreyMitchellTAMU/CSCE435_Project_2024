@@ -718,21 +718,21 @@ Note that the Sorted input took longer for 2 processes, but this was not true fo
 
 Sample Sort has a significant portion of its runtime in large computation -- when the local processes sort their respective parameters. Given that they are choosing poor indexes as pivots (leading to unbalanced subarrays to be sorted), it makes sense that Sample Sort would take long amounts of time, of the order of at least O(n^2). 
 
-![alt text](Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
 
 ##### Sample Communication Performance
 For communication, the sample sort input types seemed to have similar communication costs. This makes sense, as due to the implementation all processes will send the same amount of data to all other processes, regardless of the need (the rest of the array is filled with -1s). 
 
 Note that the 1 Percent Perturbed took longer than the other processes for communication with 2 processes. As MPI_Send and MPI_Receive were used, processes had to wait to receive before they could continue. Therefore, it is possible that some processes took longer than others to sort, and thus the others had to wait on them. However, the difference is less than 0.05 seconds, so this is likely due to the specific input generated for that case.
 
-![alt text](Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comm,%20n=65536).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Strong%20Scaling%20(comm,%20n=65536).png)
 
 ##### Sample Weak Scaling Observations:
 Unfortunately, due to the current implementation of quicksort, multiple sample sort data points were not able to be obtained for weak scaling (as the input size was too big and timed out (recall that it is currently O(n^2) worst case complexity for quicksort). However, with a better implementation of quicksort or longer runtimes before timing out (currently set to 2 hours), there will likely be further observations. 
 
-![alt text](Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(main).png)
-![alt text](Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comp_large).png)
-![alt text](Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comp_large).png)
+![alt text](sample_ipynb/Sample_Plots/Sample%20Sort%20Weak%20Scaling%20(comm).png)
 
 
 ## 5. Presentation
