@@ -661,6 +661,10 @@ This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
 #### Sample Sort Parameters
 
+The Sample Sort implementation is compatible with all of the `input_size`, `input_type`, and `num_procs` values, as well as `num_procs=1`. There is an additional parameter, `sample_size`, that is held constant at 1 throughout all of the runs. However, there are only 27 Caliper files available, as other runs with inputs larger than 1048576 timed out with a 2 hour time limit. Additionally, Grace was overrun with jobs and so not all lower number jobs with more than 2 processes were able to run. The timeouts likely occurred due to the non-parallel quicksort that was running on each individual process to sort their specific buckets, as well as due to the use of MPI_Send and MPI_Receive rather than other MPI communication processes.
+
+Sample Sort's Caliper files are located in `sample_ipynb/Sample_Cali/` .
+
 #### Merge Sort Parameters
 
 The Merge Sort implementation is compatible with all of the specified
