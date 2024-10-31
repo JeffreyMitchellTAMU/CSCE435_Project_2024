@@ -900,6 +900,95 @@ Plots for the presentation should be as follows:
 
 Analyze these plots and choose a subset to present and explain in your presentation.
 
+## 5a. All Generated Plots
+
+### Multi-algorithm
+
+#### Multi-algorithm, Strong Scaling
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=65536).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=67108864).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=268435456).png)
+
+
+#### Multi-algorithm, Strong Scaling Speedup
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=65536).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=67108864).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=268435456).png)
+
+#### Multi-algorithm, Weak Scaling
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(main).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comp_large).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comm).png)
+
+### Merge Sort
+
+#### Merge Sort, Strong Scaling
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=65536).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=65536).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=262144).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=262144).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=262144).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=1048576).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=1048576).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=1048576).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=4194304).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=4194304).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=16777216).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=16777216).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=16777216).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=67108864).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=67108864).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=67108864).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
+
+#### Merge Sort, Strong Scaling Speedup
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%20Sorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Sorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Sorted).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%20ReverseSorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20ReverseSorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20ReverseSorted).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%20Random).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%201_perc_perturbed).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%201_perc_perturbed).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%201_perc_perturbed).png)
+
+#### Merge Sort, Weak Scaling
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comp_large).png)
+
 ## 6. Final Report
 Submit a zip named `TeamX.zip` where `X` is your team number. The zip should contain the following files:
 - Algorithms: Directory of source code of your algorithms.
