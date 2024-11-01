@@ -716,6 +716,82 @@ The group has two scripts to automate job setup and runs:
 All of these metrics were measured and recorded by Caliper. They are available
 in each run's respective `.cali` file.
 
+#### Multi-algorithm Performance Evaluation
+
+Our algorithms took radically different times, forcing us to use a logarithmic
+Y scale to keep all of the lines visibly distinct. We also focused our
+comparison on Random input, with the largest input size that all of our
+algorithms were able to sort (2^26), however we also briefly took a look at the
+smallest input size too (2^16). Because none of our algorithms had master
+processes, not even Merge Sort, we used "Average time / rank" for all of our
+graphs.
+
+##### Multi-algorithm Strong Scaling
+
+For the large input sizes, all of the algorithms demonstrate faster runtimes
+with additional processes, in both the main and comp_large regions. Except for
+Radix Sort, the different algorithms' communication times gradually increased
+with additional processes.
+
+Computation time is the most frequent bottleneck for our algorithms. However,
+at 32 processors, Merge Sort's bottleneck changes to communication. This
+prevents its wall clock from scaling with additional processes, despite those
+processes reducing its computation time more aggressively than the other
+algorithms'.
+
+Merge Sort's speed advantage diminishes when the input size is very small. With
+an array size of 2^16, Merge and Bitonic Sort are essentially tied in wall
+clock performance, with both algorithms sorting fastest with only two
+processes. Interestingly, Radix Sort is the only algorithm whose wall clock
+time benefitted from additional processes at the small input scale.
+
+Overall, Merge Sort is the fastest way to sort any of the tested input sizes,
+however its ideal process count varies depending on input size, from 2 to 16.
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=65536).png)
+
+##### Multi-algorithm Strong Scaling Speedup
+
+We calculated speedup according to the formula (2 * T_2) / T_p.
+
+With a large input size, all algorithms' computation time reduced with
+additional processors. 
+
+Radix sort was the only algorithm where communication took less time as p
+increased. Similarly, it's the only algorithm that benefited from additional
+processes with very small input sizes.
+
+While it's much faster than the other algorithms, Merge Sort does not have the
+best speedup, and its change of bottleneck is particularly visible at ~p=32.
+Radix Sort, on the other hand, appeared to achieve linear speedup, however at
+the cost of overall high runtime.
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=65536).png)
+
+##### Multi-algorithm Weak Scaling
+
+Apart from an anomalous Bitonic Sort run with 128 processes, all algorithms
+followed a similar pattern, with all regions' runtime gradually increasing
+as input size and process count quadruple at each step.
+
+With logarithmic scaling on both axes, all algorithms have roughly linear
+graphs with positive slopes. This indicates imperfect weak scaling because
+quadrupling the process count doesn't allow for solving quadruple the problem
+size in the same amount of time. However, each algorithm's runtime increases
+much less than 4x whenever array size and process count quadruple, meaning
+the algorithms were still able to utilize their parallelism to make the larger
+problems more feasible.
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(main).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comp_large).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comm).png)
+
 #### Bitonic Sort Performance Evaluation General Notes:
 As directed in class, attempts were made to compare algorithms on the same scale (e.g. graphs have the same minY and maxY). However due to the wide variance of times in different algorithms, some scales have been altered to better illustrate the data. Additionally, as mentioned above, data from 1024 processor runs is not yet available due to Grace issues. Finally, in a small number of low processor jobs (~2), a system timeout stopped completion of the jobs. As directed in class, system resources were not expended to rerun these, and they are accounted for in analysis.
 
@@ -790,33 +866,27 @@ Unfortunately, due to the current implementation of quicksort, multiple sample s
 
 #### Merge Sort Performance Evaluation
 
-Merge Sort proved to be a low outlier, with its slowest run performing an order
-of magnitude faster than the next fastest algorithm's. Plotted on the same scale
-as the other graphs, its timing data points would be flattened along the bottom
-of the graphs and difficult to distinguish. Therefore, the graph scales are not
-synchronized with the other algorithms', only with the other merge sort graphs
-of the same type.
+My Merge Sort implementation is slightly unique in that it does not consolidate
+the whole array into one master process. Processes maintain their own subarrays
+throughout the entire run, meaning they can sort any array size as long as each
+process has enough RAM to store 3n/p elements.
 
 While it was significantly faster than the other algorithms, it did not
 demonstrate the best speedup.
 
 ##### Merge Sort Computation
 
-Especially at the largest input sizes, Merge Sort's computation region observed
-consistent drops in per-process computation time as more processes were added.
-This does, however, drop off at greater scales, as the compound merges (which
-are a distributed process and do not result in a single master process storing
-the entire array) require nodes to exchange data with more neighbors and perform
-more full-size local merges.
+At the largest input sizes, Merge Sort's computation region observed consistent
+drops in per-process computation time as more processes were added. This does,
+however, drop off at greater scales, as the compound merges (which are the
+alternative to having a single master process) require nodes to exchange data
+with more neighbors and perform more full-size local merges.
 
-In each merge, merge sort treats the two sorted subarrays identically, taking
-elements from one or the other. If memory is accessed at a consistent speed,
-this would result in the same time for each input type. However, in reality,
-the Random merge sorts tended to take longer. This is likely due to an increase
-in L1 cache misses. As merge sort alternates between instructions to take
-elements from the different source arrays, there's a greater likelihood that
-the other instructions get pushed out of the cache, forcing the CPU to reload
-them from memory on future iterations.
+Random inputs demonstrate significantly larger computation times with low
+process counts. I see two explanations for this: First, random inputs cause
+an if/elseif statement to execute later blocks and perform more comparisons.
+Second, the random inputs may cause more cache misses, as the program
+alternates more between reading new elements from the two input arrays.
 
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
@@ -826,14 +896,21 @@ them from memory on future iterations.
 Because this implementation does not centralize the array into a single master
 process, it can keep communication concurrent throughout the entire run. While
 communication time does increase each time the number of processors is doubled,
-it maintains a very shallow slope.
+it maintains a very shallow slope on larger input sizes.
+
+To avoid deadlocks in MPI functions, subarrays are sent in blocks of 512 or
+less. While increasing process counts increase the number of neighbors that each
+process must communicate with, the packets typically remain the same size,
+explaining the very shallow slope slopes. On small input sizes and large process
+counts, where the per-process subarray size is not a multiple of 512, Merge Sort
+will wind up sending packets smaller than 512 values, reducing efficiency and
+causing worse speedup.
 
 Communication performance was not affected by the input type. This particular
 implementation of merge sort accounts for this because it does not use any
 extra knowledge of the array to dynamically determine how much data to send.
 Each multi-process merge involves both processes sending each other the same
-amount of information every time. This is particularly noticable in that the
-Random input type did not take more time than the other input types.
+quantity of information every time.
 
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
@@ -843,16 +920,12 @@ Random input type did not take more time than the other input types.
 Merge Sort is moderately successful at weak scaling. Each quadrupling of the
 array elements (and correspondingly of processes) results in significantly less
 than a quadrupling of the time required to sort. Even in the worst step,
-the main function only doubles the time it takes. While this does allow
-sorting larger arrays by assigning more processors, the feasible array size is
-not fully proportional to the number of processors.
+the main function only doubles the time it takes. As a comparison-based sorting
+algorithm, Merge Sort must make at least `O(n log n)` comparisons in the worst
+case, meaning that any implementation will result in asymptotically greater than
+linear work to perform as `n` increases.
 
-Communication was a greater bottleneck than computation. This makes sense, as
-each successive composite merge requires that each node communicate with more
-of its neighbors. This grows to involve more and more between-node
-communication, which is much slower than communication within the same node.
-
-While this implementation of merge sort has imperfect weak scaling in timing,
+While this implementation of Merge Sort has imperfect weak scaling in timing,
 it is less constrained than other implementations in terms of memory. Because
 the array never gets centralized, each process's memory consumption is
 proportional to `n/p` (disregarding the constant overhead for MPI and the
@@ -899,6 +972,95 @@ Plots for the presentation should be as follows:
         - Weak scaling plots for each input_type (4 plots)
 
 Analyze these plots and choose a subset to present and explain in your presentation.
+
+## 5a. All Generated Plots
+
+### Multi-algorithm
+
+#### Multi-algorithm, Strong Scaling
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=65536).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=67108864).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(main,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comp_large,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20(comm,%20Random,%20n=268435456).png)
+
+
+#### Multi-algorithm, Strong Scaling Speedup
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=65536).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=65536).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=67108864).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=67108864).png)
+
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(main,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comp_large,%20Random,%20n=268435456).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Strong%20Scaling%20Speedup%20(comm,%20Random,%20n=268435456).png)
+
+#### Multi-algorithm, Weak Scaling
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(main).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comp_large).png)
+![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comm).png)
+
+### Merge Sort
+
+#### Merge Sort, Strong Scaling
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=65536).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=65536).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=262144).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=262144).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=262144).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=1048576).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=1048576).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=1048576).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=4194304).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=4194304).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=16777216).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=16777216).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=16777216).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=67108864).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=67108864).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=67108864).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(main,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
+
+#### Merge Sort, Strong Scaling Speedup
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%20Sorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Sorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Sorted).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%20ReverseSorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20ReverseSorted).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20ReverseSorted).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%20Random).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
+
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(main,%201_perc_perturbed).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%201_perc_perturbed).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%201_perc_perturbed).png)
+
+#### Merge Sort, Weak Scaling
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comp_large).png)
 
 ## 6. Final Report
 Submit a zip named `TeamX.zip` where `X` is your team number. The zip should contain the following files:
