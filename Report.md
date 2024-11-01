@@ -892,7 +892,6 @@ alternates more between reading new elements from the two input arrays.
 
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
 ![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
-
 ##### Merge Sort Communication
 
 Because this implementation does not centralize the array into a single master
@@ -946,6 +945,14 @@ We see downward growing trends as well for computation time per individual proce
 ![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=67108864).png)
 ![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comp_large,%20Random).png)
 
+Typically, for Radix, the time to sort (with regards to local computation) is relatively the same regardless of input type, as for this particular implementation, a counting sort method was used for local sorting.
+
+As a result, variance in runtime for this particular radix sort implementation became dependent on amount of communication needed for the redistribution step, where local array indices were redistributed based on global prefix sum.
+
+This caused reverse sorted input types to incur increased communication times, as for a particular local subarray problem, the maximum amount of elements to be sent to other processes would be the entire local subarray. This pattern can be observed below in the Strong scaling for Radix at the largest size input it could run.
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=67108864).png)
+
 ##### Radix Communication Performance
 With regards to communication, the reverse sorted input type consistently appeared to incur larger communication costs compared to the other three processes. This aligns with our understanding of the Radix sort implementation used for this project, as following local sort, the index location of a particular array item would be determined through counting the global prefix sum. Because Radix sort sorts from least significant to most significant digit using buckets, this would result in ReverseSorted input types incurring more communication costs during the distribution phase of radix sort, which distributed array items based on their digit index being used.
 ![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=67108864).png)![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=262144).png)
@@ -964,6 +971,10 @@ Overall, however, these trends indicate ineffective weak scaling for Radix sort,
 ![alt text](radix_ipynb/Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
 ![alt text](radix_ipynb/Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comm).png)
 
+##### Radix Scalability and Concluding Remarks
+With regards to resources, Radix is projected to be able to solve problems as long as there is sufficient resources for a parallel array, array for counting sort buckets, and an allocated array space for all the count sort buckets on every processor. 
+
+If implemented again in the future, improvements to this particular Radix Sort algorithm could be introduced by changing the base used for digit extraction. Rather than base 10, base 16 or base 32 could be used to reduce the number of iterations for each transitionary sort.
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
@@ -1063,6 +1074,57 @@ Analyze these plots and choose a subset to present and explain in your presentat
 ![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(main).png)
 ![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comm).png)
 ![alt text](merge_ipynb/Merge_Plots/Merge%20Sort%20Weak%20Scaling%20(comp_large).png)
+
+### Radix Sort
+
+#### Radix Sort, Strong Scaling
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(main,%20n=65536).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=65536).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(main,%20n=262144).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=262144).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=262144).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(main,%20n=1048576).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=1048576).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=1048576).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(main,%20n=4194304).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=4194304).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(main,%20n=16777216).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=16777216).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=16777216).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(main,%20n=67108864).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=67108864).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=67108864).png)
+
+
+#### Radix Sort, Strong Scaling Speedup
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(main,%20Sorted).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comp_large,%20Sorted).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comm,%20Sorted).png)
+
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(main,%20ReverseSorted).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comp_large,%20ReverseSorted).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comm,%20ReverseSorted).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(main,%20Random).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comp_large,%20Random).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comm,%20Random).png)
+
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(main,%201_perc_perturbed).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comp_large,%201_perc_perturbed).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup(comm,%201_perc_perturbed).png)
+
+#### Radix Sort, Weak Scaling
+![alt text](radix_ipynb/Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](radix_ipynb/Radix_Plots/Radix%20Sort%20Weak%20Scaling%20(comp_large).png)
 
 ## 6. Final Report
 Submit a zip named `TeamX.zip` where `X` is your team number. The zip should contain the following files:
