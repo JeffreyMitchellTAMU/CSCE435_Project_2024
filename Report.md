@@ -795,6 +795,8 @@ problems more feasible.
 #### Bitonic Sort Performance Evaluation General Notes:
 As directed in class, attempts were made to compare algorithms on the same scale (e.g. graphs have the same minY and maxY). However due to the wide variance of times in different algorithms, some scales have been altered to better illustrate the data. Additionally, as mentioned above, data from 1024 processor runs is not yet available due to Grace issues. Finally, in a small number of low processor jobs (~2), a system timeout stopped completion of the jobs. As directed in class, system resources were not expended to rerun these, and they are accounted for in analysis.
 
+My implementation of bitonic sort was heavily dominated by computation time; There was very little variation in communication time between process counts and array sizes.  This is important to keep in mind during the analysis of the speedup and scaling graphs of my communication sections, as very small deviations can produce seemingly large speedups.  Regarding sensitivity to input type, I found that my implementation of Bitonic Sort is generally agnostic to input type, displaying very little correlation between input type and performance.  There is variation, but it is neither consistent, nor significant enough to make a pattern.
+
 #### Bitonic Computation Performance
 For computation times, this implementation of bitonic sort appears to be relatively agnostic to the initial conditions of the data that is to be sorted. It might be argued that Random and 1_perc_perturbed initial conditions appear to have somewhat higher computation times at lower processor counts, but this observation is neither consistent nor significant enough to draw any conclusions off of.
 
