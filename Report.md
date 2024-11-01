@@ -888,9 +888,8 @@ an if/elseif statement to execute later blocks and perform more comparisons.
 Second, the random inputs may cause more cache misses, as the program
 alternates more between reading new elements from the two input arrays.
 
-![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
-![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
-
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
 ##### Merge Sort Communication
 
 Because this implementation does not centralize the array into a single master
@@ -912,8 +911,8 @@ extra knowledge of the array to dynamically determine how much data to send.
 Each multi-process merge involves both processes sending each other the same
 quantity of information every time.
 
-![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20(comm,%20n=268435456).png)
-![alt text](radix_ipynb/Radix_Plots/Radix%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20(comm,%20n=268435456).png)
+![alt text](merge_ipynb/Merge_Plots/Mergesort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
 
 ##### Merge Sort Weak Scaling
 
