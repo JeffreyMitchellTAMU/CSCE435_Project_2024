@@ -1022,6 +1022,59 @@ Analyze these plots and choose a subset to present and explain in your presentat
 ![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comp_large).png)
 ![alt text](multi_alg_ipynb/plots/Multi-algorithm%20Weak%20Scaling%20(comm).png)
 
+### Bitonic Sort
+
+#### Bitonic Sort, Strong Scaling
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=65536).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=65536).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=65536).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=262144).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=262144).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=262144).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=1048576).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=1048576).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=1048576).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=4194304).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=4194304).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=4194304).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=16777216).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=16777216).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=16777216).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=67108864).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=67108864).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=67108864).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(main,%20n=268435456).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comm,%20n=268435456).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20(comp_large,%20n=268435456).png)
+
+#### Bitonic Sort, Strong Scaling Speedup
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(main,%20Sorted).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large,%20Sorted).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comm,%20Sorted).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(main,%20ReverseSorted).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large,%20ReverseSorted).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comm,%20ReverseSorted).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(main,%20Random).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large,%20Random).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comm,%20Random).png)
+
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(main,%201_perc_perturbed).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comp_large,%201_perc_perturbed).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonicsort%20Strong%20Scaling%20Speedup%20(comm,%201_perc_perturbed).png)
+
+#### Bitonic Sort, Weak Scaling
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(main).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comm).png)
+![alt text](bitonic_ipynb/Bitonic_Plots/Bitonic%20Sort%20Weak%20Scaling%20(comp_large).png)
+
 ### Merge Sort
 
 #### Merge Sort, Strong Scaling
